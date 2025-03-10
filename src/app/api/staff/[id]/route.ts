@@ -2,10 +2,10 @@ import prisma from "@/components/util/prisma"; // Adjust the path to your prisma
 import { NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
-  context: { params: { id: string } } // Correctly type the second argument
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // Access `params` from `context`
+  const { id } = await params;
 
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "Invalid staff ID" }, { status: 400 });
