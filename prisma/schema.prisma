@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id             String    @id @default(cuid())
+  upi            String    @unique
+  misId          String    @unique
+  initials       String
+  title          String?
+  surname        String
+  forename       String
+  middleNames    String?
+  gender         String?
+  genderIdentity String?
+  dateOfBirth    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  periodId       String?
+
+  // Relations
+  photo            Photo?
+  contactDetails   ContactDetails?
+  educationDetails EducationDetails?
+  person           Person?
+  calendarEntries  CalendarEntry[]   @relation("CalendarEntryStudents")
+
+  @@map("students")
+}
+
+model Staff {
+  id            String    @id @default(cuid())
+  upi           String    @unique
+  misId         String    @unique @map("mis_id")
+  initials      String
+  title         String?
+  surname       String
+  forename      String
+  middleNames   String?   @map("middle_names")
+  legalSurname  String    @map("legal_surname")
+  legalForename String    @map("legal_forename")
+  gender        String?
+  dateOfBirth   DateTime? @map("date_of_birth")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  photo           Photo?
+  contactDetails  ContactDetails?
+  person          Person?
+  calendarEntries CalendarEntry[] @relation("CalendarEntryStaff")
+
+  @@map("staff")
+}
+
+model Person {
+  id             String    @id @default(cuid())
+  surname        String
+  forename       String
+  legalSurname   String?
+  legalForename  String?
+  gender         String?
+  genderIdentity String?
+  dateOfBirth    DateTime?
+
+  // Relations
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?  @unique @map("student_id")
+  staff     Staff?   @relation(fields: [staffId], references: [id])
+  staffId   String?  @unique @map("staff_id")
+
+  @@map("persons")
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?  @unique @map("student_id")
+  staff     Staff?   @relation(fields: [staffId], references: [id])
+  staffId   String?  @unique @map("staff_id")
+
+  @@map("photos")
+}
+
+model ContactDetails {
+  id         String   @id @default(cuid())
+  phones     String[]
+  emails     String[]
+  addresses  String[]
+  salutation String   @db.Text
+
+  // Relations
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?  @unique @map("student_id")
+  staff     Staff?   @relation(fields: [staffId], references: [id])
+  staffId   String?  @unique @map("staff_id")
+
+  @@map("contact_details")
+}
+
+model EducationDetails {
+  id              String    @id @default(cuid())
+  admissionNumber String
+  upn             String
+  localUpn        String
+  formerUpn       String
+  learnerNumber   String
+  currentNcYear   String
+  partTime        Boolean
+  partTimeRate    Float?
+  admissionDate   DateTime?
+  leavingDate     DateTime?
+
+  // Relations
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String  @unique @map("student_id")
+
+  @@map("education_details")
+}
+
+model CalendarEntry {
+  id        String    @id @default(cuid())
+  date      DateTime  @db.Date
+  periodId  Int
+  students  Student[] @relation("CalendarEntryStudents")
+  staff     Staff[]   @relation("CalendarEntryStaff")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([date, periodId])
+  @@index([date])
+  @@map("calendar_entries")
+}
