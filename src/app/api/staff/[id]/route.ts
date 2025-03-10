@@ -3,13 +3,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } } // Correctly type the second argument
 ) {
-  // Ensure params are awaited before use
-  const { id } = params;
+  const { id } = context.params; // Access `params` from `context`
 
   if (!id || typeof id !== "string") {
-    return NextResponse.json({ error: "Invalid student ID" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid staff ID" }, { status: 400 });
   }
 
   try {
