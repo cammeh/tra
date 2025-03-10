@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   // Ensure params are awaited before use
-  const { id } = await params;
+  const { id } = params;
 
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "Invalid student ID" }, { status: 400 });
