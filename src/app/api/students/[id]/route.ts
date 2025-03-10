@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } } // Correctly destructure `params` from the context
+  context: { params: { id: string } } // Correctly type the second argument
 ) {
-  const { id } = params; // No need to `await` params
+  const { id } = context.params; // Access `params` from `context`
 
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "Invalid student ID" }, { status: 400 });
